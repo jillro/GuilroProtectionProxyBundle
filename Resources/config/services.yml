@@ -1,18 +1,20 @@
 parameters:
-    guilro_protection_proxy.access_manager.class: Guilro\ProtectionProxyBundle\AccessManager\AccessManager
-    guilro_protection_proxy.access_manager.factory.class: Guilro\ProtectionProxyBundle\AccessManager\ProxyFactory
+    guilro.protection_proxy.access_manager.class: Guilro\ProtectionProxyBundle\AccessManager\AccessManager
+    guilro.protection_proxy.access_manager.factory.class: Guilro\ProtectionProxyBundle\AccessManager\ProxyFactory
 
 services:
-    guilro_protection_proxy.access_manager:
-        class: %guilro_protection_proxy.access_manager.class%
+    guilro.protection_proxy:
+        alias: guilro.protection_proxy.access_manager
+    guilro.protection_proxy.access_manager:
+        class: %guilro.protection_proxy.access_manager.class%
         arguments:
             parameters:
                 protected_classes: %guilro_protection_proxy.access_manager.protected_classes%
             services:
                 guilro_protection_proxy.access_manager.factory:  @guilro_protection_proxy.access_manager.factory
                 security.context:   @security.context
-    guilro_protection_proxy.access_manager.factory:
-        class: %guilro_protection_proxy.access_manager.factory.class%
+    guilro.protection_proxy.access_manager.factory:
+        class: %guilroprotection_proxy.access_manager.factory.class%
         public: false
         arguments:
             parameters:
