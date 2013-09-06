@@ -1,0 +1,18 @@
+{
+    "name": "guilro/protection-proxy-bundle",
+    "type": "symfony-bundle",
+    "description": "Protection proxy generator for Symfony2",
+    "homepage": "https://github.com/Guilro/GuilroProtectionProxyBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Guillaume Royer",
+            "email": "guilro@redado.org"
+        }
+    ],
+    "require": {
+        "symfony/security-bundle": "2.*"
+    },
+    "target-dir": "Guilro/ProtectionProxyBundle"
+}
+
