@@ -13,6 +13,9 @@
     "require": {
         "symfony/security-bundle": "2.*"
     },
+    "autoload": {
+	    "psr-0": { "Guilro\\ProtectionProxyBundle": ""}
+    },
     "target-dir": "Guilro/ProtectionProxyBundle"
 }
 
