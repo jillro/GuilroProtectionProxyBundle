@@ -165,11 +165,17 @@ class ' . $class_name . 'ProtectionProxy extends ' . $class_name . '
             } else if ( is_array($return)
                     || $return instanceof \Traversable
                     || $return instanceof \ArrayAccess) {
-                foreach($return as $key => $element) {
+                $new_return = array();
+                foreach($return as $element) {
                     if($this->access_manager->isProtected($element)) {
-                        $return[$key] = $this->access_manager->getProxy($element);
+                        if($this->access_manager->isObjectGranted($element)) {
+                            $new_return[] = $this->access_manager->getProxy($element);
+                        }
+                    } else {
+                        $new_return[] = $element;
                     }
                 }
+                $return = $new_return;
                 return $return;
             } else {
                 return $return;

@@ -54,12 +54,27 @@ class AccessManager {
      */
     public function isGranted($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[get_parent_class($object)]['methods'][$method_name])) {
+        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name])) {
             return true;
         } else {
-            $method_attribute = $this->protected_classes[get_parent_class($object)]['methods'][$method_name];
+            $method_attribute = $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name];
 
-            if (!$this->services['security.context']->isGranted($method_attribute, $object)) {
+            if (!$this->services['security.context']->isGranted($method_attribute, $proxy)) {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public function isObjectGranted($object)
+    {
+        if(!isset($this->protected_classes[get_class($object)]['view'])) {
+            return true;
+        } else {
+            $view_attribute = $this->protected_classes[get_class($object)]['view'];
+
+            if (!$this->services['security.context']->isGranted($view_attribute, $object)) {
                 return false;
             }
 
@@ -93,7 +108,11 @@ class AccessManager {
      */
     public function getProxy($object)
     {
-        return $this->getFactory()->getProxy($object, $this);
+        if ($this->isObjectGranted($object)) {
+            return $this->getFactory()->getProxy($object, $this);
+        } else {
+            return null;
+        }
     }
 
     /**

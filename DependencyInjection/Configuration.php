@@ -26,6 +26,8 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->prototype('array')
                     ->children()
+                        ->scalarNode('view')
+                        ->end()
                         ->arrayNode('methods')
                             ->useAttributeAsKey('name')
                             ->prototype('scalar')
