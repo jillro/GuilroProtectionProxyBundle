@@ -42,12 +42,22 @@ class AccessManager {
         $this->protected_classes = $parameters['protected_classes'];
     }
 
-    public function isGranted($object, $function_name)
+
+    /**
+     * Return wether current token is granted to execute the method $method_name of the proxy object $proxy.
+     * Parent class of the proxy MUST be the protected class.
+     *
+     * @param mixed $proxy
+     * @param string $method_name
+     *
+     * @return boolean
+     */
+    public function isGranted($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[get_parent_class($object)]['methods'][$function_name])) {
+        if(!isset($this->protected_classes[get_parent_class($object)]['methods'][$method_name])) {
             return true;
         } else {
-            $method_attribute = $this->protected_classes[get_parent_class($object)]['methods'][$function_name];
+            $method_attribute = $this->protected_classes[get_parent_class($object)]['methods'][$method_name];
 
             if (!$this->services['security.context']->isGranted($method_attribute, $object)) {
                 return false;
@@ -57,6 +67,14 @@ class AccessManager {
         }
     }
 
+    /**
+     * Return wether object $object should be protected, that is to say if a proxy can be generated for it.
+     * Does not work if $object is sub-class of a protected class.
+     *
+     * @param mixed $object
+     *
+     * @return boolean
+     */
     public function isProtected($object)
     {
         if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
@@ -66,11 +84,21 @@ class AccessManager {
         }
     }
 
+    /**
+     * Return a protected proxy of $object.
+     *
+     * @param mixed
+     *
+     * @return mixed
+     */
     public function getProxy($object)
     {
         return $this->getFactory()->getProxy($object, $this);
     }
 
+    /**
+     * @return ProxyFactory
+     */
     public function getFactory()
     {
         return $this->services['guilro_protection_proxy.access_manager.factory'];
