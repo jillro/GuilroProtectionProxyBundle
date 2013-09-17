@@ -4,6 +4,16 @@ GuilroProtectionProxyBundle
 Installation
 ------------
 
+
+Add this bundle to your `composer.json` file:
+```json
+{
+    "require": {
+        "guilro/protection-proxy-bundle": "dev-master"
+    }
+}
+```
+
 Register the bundle in app/AppKernel.php:
 
 ```php
@@ -31,8 +41,12 @@ guilro_protection_proxy:
     protected_classes:
         Acme\BlogBundle\Comment:
             methods:
-                getTitle: attribute
-                setAuthor: attribute2
+                getTitle:
+			attribute: ROLE_USER #can be a role, or any attribute that a voter can handle
+                setAuthor:
+			attribute: attribute2
+			return_proxy: true
+
 ```
 
 Typicall usage in your controllers and views:
@@ -53,9 +67,8 @@ $this->render(
 When called by the views, methods `getTitle()` and `setAuthor()` of `$comment` will only be
 really executed if `$this->get('security.context')->isGranted('attribute', $comment)`
 returns `true`. Otherwise nothing will happen and the methods return null.
+If the original method returns a protected object, it will return the object or its protection proxy
+depending on `return_proxy` setting. Default for this setting is `false`.
+
 You should probably implements your own [Voter](http://symfony.com/doc/current/cookbook/security/voters.html)
 in order to grant access or not to users.
-
-
-
-

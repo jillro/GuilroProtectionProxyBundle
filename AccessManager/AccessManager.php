@@ -54,10 +54,10 @@ class AccessManager {
      */
     public function isGranted($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name])) {
+        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['attribute'])) {
             return true;
         } else {
-            $method_attribute = $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name];
+            $method_attribute = $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['attribute'];
 
             if (!$this->services['security.context']->isGranted($method_attribute, $proxy)) {
                 return false;
@@ -98,6 +98,17 @@ class AccessManager {
             return false;
         }
     }
+
+    public function isReturningProxy($proxy, $method_name)
+    {
+        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['return_proxy'])) {
+            return false;
+        } elseif ($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['return_proxy'] == true) {
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * Return a protected proxy of $object.

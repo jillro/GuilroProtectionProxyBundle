@@ -158,13 +158,16 @@ class ' . $class_name . 'ProtectionProxy extends ' . $class_name . '
                 $return = null;
             }
 
-            if(is_object($return) && $return == $this->real) {
+            if(is_object($return) && $return == $this->real
+            && $this->access_manager->isReturningProxy($this, \'' . $method->getName() . '\')) {
                 return $this;
-            } else if ($this->access_manager->isProtected($return)) {
+            } else if ($this->access_manager->isReturningProxy($this, \'' . $method->getName() . '\')
+            && $this->access_manager->isProtected($return)) {
                 return $this->access_manager->getProxy($return);
-            } else if ( is_array($return)
+            } else if (( is_array($return)
                     || $return instanceof \Traversable
-                    || $return instanceof \ArrayAccess) {
+                    || $return instanceof \ArrayAccess)
+                    &&  $this->access_manager->isReturningProxy($this, \'' . $method->getName() . '\')) {
                 $new_return = array();
                 foreach($return as $element) {
                     if($this->access_manager->isProtected($element)) {
