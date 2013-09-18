@@ -43,6 +43,7 @@ guilro_protection_proxy:
             methods:
                 getTitle:
                     attribute: ROLE_USER #can be a role, or any attribute that a voter can handle
+                    deny_value: Title hidden ! #optional setting, default will return null on deny
                 setAuthor:
                     attribute: attribute2
                     return_proxy: true
@@ -66,7 +67,7 @@ $this->render(
 
 When called by the views, methods `getTitle()` and `setAuthor()` of `$comment` will only be
 really executed if `$this->get('security.context')->isGranted('attribute', $comment)`
-returns `true`. Otherwise nothing will happen and the methods return null.
+returns `true`. Otherwise nothing will happen and the methods return null, or `deny_value` if set.
 If the original method returns a protected object, it will return the object or its protection proxy
 depending on `return_proxy` setting. Default for this setting is `false`.
 
