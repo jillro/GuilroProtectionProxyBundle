@@ -42,10 +42,10 @@ guilro_protection_proxy:
         Acme\BlogBundle\Comment:
             methods:
                 getTitle:
-			attribute: ROLE_USER #can be a role, or any attribute that a voter can handle
+                    attribute: ROLE_USER #can be a role, or any attribute that a voter can handle
                 setAuthor:
-			attribute: attribute2
-			return_proxy: true
+                    attribute: attribute2
+                    return_proxy: true
 
 ```
 
