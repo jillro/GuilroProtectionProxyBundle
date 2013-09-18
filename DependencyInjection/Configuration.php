@@ -34,6 +34,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->scalarNode('attribute')->end()
                                 ->booleanNode('return_proxy')->end()
+                                ->scalarNode('deny_value')->end()
                             ->end()
                         ->end()
                     ->end()

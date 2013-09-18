@@ -109,6 +109,14 @@ class AccessManager {
         return false;
     }
 
+    public function getDenyValue($proxy, $method_name)
+    {
+        if (!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['deny_value'])) {
+            return null;
+        } else {
+            return $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['deny_value'];
+        }
+    }
 
     /**
      * Return a protected proxy of $object.

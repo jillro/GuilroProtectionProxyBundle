@@ -155,7 +155,7 @@ class ' . $class_name . 'ProtectionProxy extends ' . $class_name . '
             if($this->access_manager->isGranted($this, \'' . $method->getName() . '\') ) {
                 $return = $this->real->' . $method->getName() . '(' . $argumentString . ');
             } else {
-                $return = null;
+                $return = $this->access_manager->getDenyValue($this, \'' . $method->getName() . '\');
             }
 
             if(is_object($return) && $return == $this->real
