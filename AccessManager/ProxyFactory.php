@@ -87,8 +87,11 @@ class ' . $class_name . ' extends BaseClass
             ');
         }
 
-        $proxy = new $full_proxy_class_name($entity, $access_manager);
+        if (get_class($entity) === $full_proxy_class_name) {
+            return $entity;
+        }
 
+        $proxy = new $full_proxy_class_name($entity, $access_manager);
         assert(is_subclass_of($proxy, $full_class_name));
 
         return $proxy;
