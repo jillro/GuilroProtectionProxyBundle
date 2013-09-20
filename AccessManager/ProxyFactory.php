@@ -54,17 +54,17 @@ class ProxyFactory
         $full_class_name = get_class($entity);
         $tmp = explode('\\', $full_class_name);
         $class_name = end($tmp);
+        $full_class_namespace = substr($full_class_name, 0, strpos($full_class_name, '\\' . $class_name));
 
-        $full_proxy_class_name = 'Guilro\ProtectionProxyBundle\Proxy\\' . $full_class_name . '\\' . $class_name . 'ProtectionProxy';
+        $full_proxy_class_name = 'Guilro\ProtectionProxyBundle\Proxy\__CG__\\' . $full_class_name;
         if (!class_exists($full_proxy_class_name, false)) {
             $methods = $this->_generateMethods($full_class_name);
             eval ('
-namespace Guilro\ProtectionProxyBundle\Proxy\\' . $full_class_name . ';
+namespace Guilro\ProtectionProxyBundle\Proxy\__CG__\\' . $full_class_namespace . ';
 
-use ' . $full_class_name . ';
+use ' . $full_class_name . ' as BaseClass;
 
-class ' . $class_name . 'ProtectionProxy extends ' . $class_name . '
-
+class ' . $class_name . ' extends BaseClass
 {
     public function __construct($real, $access_manager)
     {

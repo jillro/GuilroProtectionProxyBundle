@@ -24,6 +24,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Util\ClassUtils;
 
 class AccessManager {
     /**
@@ -54,10 +55,10 @@ class AccessManager {
      */
     public function isGranted($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['attribute'])) {
+        if(!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['attribute'])) {
             return true;
         } else {
-            $method_attribute = $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['attribute'];
+            $method_attribute = $this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['attribute'];
 
             if (!$this->services['security.context']->isGranted($method_attribute, $proxy)) {
                 return false;
@@ -69,10 +70,10 @@ class AccessManager {
 
     public function isObjectGranted($object)
     {
-        if(!isset($this->protected_classes[get_class($object)]['view'])) {
+        if(!isset($this->protected_classes[ClassUtils::getRealClass($object)]['view'])) {
             return true;
         } else {
-            $view_attribute = $this->protected_classes[get_class($object)]['view'];
+            $view_attribute = $this->protected_classes[ClassUtils::getRealClass($object)]['view'];
 
             if (!$this->services['security.context']->isGranted($view_attribute, $object)) {
                 return false;
@@ -92,7 +93,7 @@ class AccessManager {
      */
     public function isProtected($object)
     {
-        if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
+        if(is_object($object) && isset($this->protected_classes[ClassUtils::getRealClass($object)]) ) {
             return true;
         } else {
             return false;
@@ -101,9 +102,9 @@ class AccessManager {
 
     public function isReturningProxy($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['return_proxy'])) {
+        if(!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['return_proxy'])) {
             return false;
-        } elseif ($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['return_proxy'] == true) {
+        } elseif ($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['return_proxy'] == true) {
             return true;
         }
         return false;
@@ -111,10 +112,10 @@ class AccessManager {
 
     public function getDenyValue($proxy, $method_name)
     {
-        if (!isset($this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['deny_value'])) {
+        if (!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['deny_value'])) {
             return null;
         } else {
-            return $this->protected_classes[get_parent_class($proxy)]['methods'][$method_name]['deny_value'];
+            return $this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['deny_value'];
         }
     }
 
