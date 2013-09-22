@@ -161,7 +161,7 @@ class ' . $class_name . ' extends BaseClass
                 $return = $this->access_manager->getDenyValue($this, \'' . $method->getName() . '\');
             }
 
-            if(is_object($return) && $return == $this->real
+            if(is_object($return) && $return === $this->real
             && $this->access_manager->isReturningProxy($this, \'' . $method->getName() . '\')) {
                 return $this;
             } else if ($this->access_manager->isReturningProxy($this, \'' . $method->getName() . '\')
