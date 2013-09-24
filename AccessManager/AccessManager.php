@@ -135,6 +135,18 @@ class AccessManager {
         }
     }
 
+    public function getProxies(array $objects)
+    {
+        $return = array();
+
+        foreach($objects as $object) {
+            $proxy = $this->getProxy($object);
+            is_null($proxy) ? null : $return[] = $proxy;
+        }
+
+        return $return;
+    }
+
     /**
      * @return ProxyFactory
      */
