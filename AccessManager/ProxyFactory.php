@@ -51,7 +51,7 @@ class ProxyFactory
      */
     public function getProxy($entity, $access_manager)
     {
-        $full_class_name = get_class($entity);
+        $full_class_name = $this->getRealClass(get_class($entity));
         $tmp = explode('\\', $full_class_name);
         $class_name = end($tmp);
         $full_class_namespace = substr($full_class_name, 0, strpos($full_class_name, '\\' . $class_name));
@@ -206,5 +206,12 @@ class ' . $class_name . ' extends BaseClass
         }
 
         return $results;
+    }
+
+    public static function getRealClass($class) {
+        if (false === $pos = strrpos($class, '\\' . '__CG__' . '\\')) {
+            return $class;
+        }
+        return substr($class, $pos + 6 + 2);
     }
 }
