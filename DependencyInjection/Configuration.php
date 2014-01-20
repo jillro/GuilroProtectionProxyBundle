@@ -52,6 +52,7 @@ class Configuration implements ConfigurationInterface
                             ->prototype('array')
                             ->children()
                                 ->scalarNode('attribute')->end()
+                                ->scalarNode('expression')->end()
                                 ->booleanNode('return_proxy')->end()
                                 ->scalarNode('deny_value')->end()
                             ->end()

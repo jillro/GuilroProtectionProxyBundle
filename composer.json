@@ -11,7 +11,12 @@
         }
     ],
     "require": {
-        "symfony/security-bundle": "2.*"
+        "symfony/security-bundle": "2.4.*",
+        "symfony/expression-language": "2.4.*",
+        "symfony/dependency-injection": "2.4.*",
+        "doctrine/common": "~2.2",
+        "symfony/config": "2.4.*",
+        "symfony/http-kernel": "2.4.*"
     },
     "autoload": {
 	    "psr-0": { "Guilro\\ProtectionProxyBundle": ""}

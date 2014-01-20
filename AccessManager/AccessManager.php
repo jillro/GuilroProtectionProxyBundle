@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\Collection;
 
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Util\ClassUtils;
+use Symfony\Component\ExpressionLanguage\Expression;
 
 class AccessManager {
     /**
@@ -46,6 +47,7 @@ class AccessManager {
 
     /**
      * Return wether current token is granted to execute the method $method_name of the proxy object $proxy.
+     * This method is called by the proxied themselves.
      * Parent class of the proxy MUST be the protected class.
      *
      * @param mixed $proxy
@@ -55,17 +57,29 @@ class AccessManager {
      */
     public function isGranted($proxy, $method_name)
     {
-        if(!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['attribute'])) {
-            return true;
-        } else {
-            $method_attribute = $this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['attribute'];
+        $attribute = isset($this->protected_classes[ClassUtils::getRealClass($proxy)]
+            ['methods'][$method_name]['attribute']) ?
+                $this->protected_classes[ClassUtils::getRealClass($proxy)]
+                    ['methods'][$method_name]['attribute']
+                : false;
+        $expression = isset($this->protected_classes[ClassUtils::getRealClass($proxy)]
+            ['methods'][$method_name]['attribute']) ?
+                $this->protected_classes[ClassUtils::getRealClass($proxy)]
+                    ['methods'][$method_name]['expression']
+                : false;
 
-            if (!$this->services['security.context']->isGranted($method_attribute, $proxy)) {
+        if(!$attribute && !$expression) {
+            return true;
+        } else if($attribute) {
+            if (!$this->services['security.context']->isGranted($attribute, $proxy)) {
                 return false;
             }
-
-            return true;
+        } else if($expression) {
+            if (!$this->services['security.context']->isGranted(new Expression($expression)) {
+                return false;
+            }
         }
+        return true;
     }
 
     public function isObjectGranted($object)

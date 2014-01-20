@@ -44,8 +44,8 @@ guilro_protection_proxy:
                 getTitle:
                     attribute: ROLE_USER #can be a role, or any attribute that a voter can handle
                     deny_value: Title hidden ! #optional setting, default will return null on deny
-                setAuthor:
-                    attribute: attribute2
+                getAuthor:
+                    expression: '"ROLE_ADMIN" in roles or (user and user.isSuperAdmin())'
                     return_proxy: true
 
 ```
@@ -65,11 +65,10 @@ $this->render(
 );
 ```
 
-When called by the views, methods `getTitle()` and `setAuthor()` of `$comment` will only be
-really executed if `$this->get('security.context')->isGranted('attribute', $comment)`
-returns `true`. Otherwise nothing will happen and the methods return null, or `deny_value` if set.
-If the original method returns a protected object, it will return the object or its protection proxy
-depending on `return_proxy` setting. Default for this setting is `false`.
+* If 'attribute' is set, when using the generated proxy, original methods `getTitle()` and `setAuthor()` of `$comment` will only be really executed if `$securityContext->isGranted('attribute', $comment)` returns `true`.
+* If 'expression' is set, when using the generated proxy, original methods will only be really executed if `$securityContext->isGranted(new Expression($expression)` returns `true`.
+* If both are set, both test are performed.
+* If `$securityContext->isGranted()` returns false, the original method will not be executed. It will return `null`, or `deny_value` if set.
+* If the original method returns an object of a pretected class, it will return the raw object or its protected proxy depending on `return_proxy` setting. Default for this setting is `false`.
 
-You should probably implements your own [Voter](http://symfony.com/doc/current/cookbook/security/voters.html)
-in order to grant access or not to users.
+If you use attribute, you should probably implements your own [Voter](http://symfony.com/doc/current/cookbook/security/voters.html) in order to grant access or not to users, if you are not using roles only.
