@@ -82,6 +82,11 @@ class ' . $class_name . ' extends BaseClass
         $this->real = clone $this->real;
     }
 
+    public function __getReal()
+    {
+        return $this->real;
+    }
+
     ' .$methods . '
 }
             ');
