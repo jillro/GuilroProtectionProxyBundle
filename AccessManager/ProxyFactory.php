@@ -60,7 +60,7 @@ class ProxyFactory
         if (!class_exists($full_proxy_class_name, false)) {
             $methods = $this->_generateMethods($full_class_name);
             eval ('
-namespace Guilro\ProtectionProxyBundle\Proxy\__CG__\\' . $full_class_namespace . ';
+namespace Guilro\ProtectionProxyBundle\Proxy\__CG__' . ($full_class_namespace != '' ? '\\' : '') . $full_class_namespace . ';
 
 use ' . $full_class_name . ' as BaseClass;
 

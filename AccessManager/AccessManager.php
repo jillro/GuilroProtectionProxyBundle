@@ -63,19 +63,19 @@ class AccessManager {
                     ['methods'][$method_name]['attribute']
                 : false;
         $expression = isset($this->protected_classes[ClassUtils::getRealClass($proxy)]
-            ['methods'][$method_name]['attribute']) ?
+            ['methods'][$method_name]['expression']) ?
                 $this->protected_classes[ClassUtils::getRealClass($proxy)]
                     ['methods'][$method_name]['expression']
                 : false;
 
         if(!$attribute && !$expression) {
             return true;
-        } else if($attribute) {
+        } else if($attribute != false) {
             if (!$this->services['security.context']->isGranted($attribute, $proxy)) {
                 return false;
             }
-        } else if($expression) {
-            if (!$this->services['security.context']->isGranted(new Expression($expression)) {
+        } else if($expression != false) {
+            if (!$this->services['security.context']->isGranted(new Expression($expression))) {
                 return false;
             }
         }
