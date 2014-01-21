@@ -67,7 +67,7 @@ $this->render(
 ```
 
 * If 'attribute' is set, when using the generated proxy, original methods `getTitle()` and `setAuthor()` of `$comment` will only be really executed if `$securityContext->isGranted('attribute', $comment)` returns `true`.
-* If 'expression' is set, when using the generated proxy, original methods will only be really executed if `$securityContext->isGranted(new Expression($expression))` returns `true`.
+* If 'expression' is set, when using the generated proxy, original methods will only be really executed if `$securityContext->isGranted(new Expression($expression), $comment)` returns `true`.
 * If both are set, both test are performed.
 * If `$securityContext->isGranted()` returns false, the original method will not be executed. It will return `null`, or `deny_value` if set.
 * If the original method returns an object of a pretected class, it will return the raw object or its protected proxy depending on `return_proxy` setting. Default for this setting is `false`.
