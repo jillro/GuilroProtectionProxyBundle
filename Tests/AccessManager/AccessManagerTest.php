@@ -98,6 +98,3 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($proxy->getSister()->dummyMethod() == 'raw object');
     }
 }
-
-
-
