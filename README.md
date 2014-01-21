@@ -71,4 +71,4 @@ $this->render(
 * If `$securityContext->isGranted()` returns false, the original method will not be executed. It will return `null`, or `deny_value` if set.
 * If the original method returns an object of a pretected class, it will return the raw object or its protected proxy depending on `return_proxy` setting. Default for this setting is `false`.
 
-If you use attribute, you should probably implements your own [Voter](http://symfony.com/doc/current/cookbook/security/voters.html) in order to grant access or not to users, if you are not using roles only.
+If you use attributes other than roles, you should probably implements your own [Voter](http://symfony.com/doc/current/cookbook/security/voters.html) in order to grant access or not to users.
