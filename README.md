@@ -1,5 +1,6 @@
 GuilroProtectionProxyBundle
 ===========================
+[![Build Status](https://travis-ci.org/guilro/GuilroProtectionProxyBundle.png?branch=master)](https://travis-ci.org/guilro/GuilroProtectionProxyBundle)
 
 Installation
 ------------
