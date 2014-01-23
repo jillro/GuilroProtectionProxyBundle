@@ -2,6 +2,8 @@ parameters:
     guilro.protection_proxy.access_manager.class: Guilro\ProtectionProxyBundle\AccessManager\AccessManager
 
 services:
+    guilro.protection_proxy:
+        alias: guilro.protection_proxy.access_manager
     guilro.protection_proxy.access_manager:
         class: %guilro.protection_proxy.access_manager.class%
         arguments:
