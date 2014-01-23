@@ -29,20 +29,23 @@ class DummyClass
      *
      * @param string name
      */
-    public function __construct($name) {
+    public function __construct($name)
+    {
         $this->name = $name;
     }
     /**
      * Dummy method for test.
      */
-    public function dummyMethod() {
+    public function dummyMethod()
+    {
         return 'raw object';
     }
 
     /**
      * Dummy method for testing return_proxy parameter.
      */
-    public function getBrother() {
+    public function getBrother()
+    {
         return new DummyClass('brother');
     }
 
