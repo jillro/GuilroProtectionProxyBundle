@@ -183,7 +183,7 @@ class AccessManager {
                         ) {
                             $return = array();
                             foreach($returnValue as $element) {
-                                if($this->isProtected($element)) {
+                                if($_this->isProtected($element)) {
                                     $return[] = $_this->getProxy($element);
                                 } else {
                                     $return[] = $element;
