@@ -48,6 +48,23 @@ class AccessManager {
     }
 
     /**
+     * Return wether object $object should be protected, that is to say if a proxy can be generated for it.
+     * Does not work if $object is sub-class of a protected class.
+     *
+     * @param mixed $object
+     *
+     * @return boolean
+     */
+    public function isProtected($object)
+    {
+        if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Return a protected proxy of $object.
      *
      * @param mixed
@@ -91,7 +108,12 @@ class AccessManager {
      */
     private function doCreateProxy($object) {
         $proxy = $this->factory->createProxy($object);
-        $_this = $this; //$this is closures does not work with PHP 5.3
+        /* $this in closures does not work with PHP 5.3
+         * so we have to pass the object explicitely
+         * with its private properties */
+        $_this = $this;
+        $securityContext = $this->services['security.context'];
+
         foreach($this->protected_classes[get_class($object)]['methods'] as $method => $options) {
             $attribute = isset($options['attribute']) ? $options['attribute'] : false;
             $expression = isset($options['expression']) ? $options['expression'] : false;
@@ -100,9 +122,9 @@ class AccessManager {
 
             if($attribute != false && $expression != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $attribute, $denyValue, $_this)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $attribute, $denyValue, $securityContext)
                     {
-                        if (!($_this->services['security.context']->isGranted(new Expression($expression), $instance) && $_this->services['security.context']->isGranted($attribute, $instance)))  {
+                        if (!($securityContext->isGranted(new Expression($expression), $instance) && $securityContext->isGranted($attribute, $instance)))  {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -116,9 +138,9 @@ class AccessManager {
 
             if($attribute != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue, $_this)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue, $securityContext)
                     {
-                        if (!$_this->services['security.context']->isGranted($attribute, $instance)) {
+                        if (!$securityContext->isGranted($attribute, $instance)) {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -132,9 +154,9 @@ class AccessManager {
 
             if($expression != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $denyValue, $_this)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $denyValue, $securityContext)
                     {
-                        if (!$_this->services['security.context']->isGranted(new Expression($expression), $instance)) {
+                        if (!$securityContext->isGranted(new Expression($expression), $instance)) {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -177,21 +199,4 @@ class AccessManager {
 
         return $proxy;
     } // end doCreateProxy
-
-    /**
-     * Return wether object $object should be protected, that is to say if a proxy can be generated for it.
-     * Does not work if $object is sub-class of a protected class.
-     *
-     * @param mixed $object
-     *
-     * @return boolean
-     */
-    private function isProtected($object)
-    {
-        if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
