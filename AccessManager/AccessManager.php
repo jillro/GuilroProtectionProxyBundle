@@ -20,16 +20,14 @@
 
 namespace Guilro\ProtectionProxyBundle\AccessManager;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Util\ClassUtils;
 use Symfony\Component\ExpressionLanguage\Expression;
 
 use ProxyManager\Factory\AccessInterceptorValueHolderFactory as Factory;
 
-class AccessManager {
+class AccessManager
+{
     /**
      * @var array
      */
@@ -106,7 +104,8 @@ class AccessManager {
      *
      * @return mixed
      */
-    private function doCreateProxy($object) {
+    private function doCreateProxy($object)
+    {
         $proxy = $this->factory->createProxy($object);
         /* $this in closures does not work with PHP 5.3
          * so we have to pass the object explicitely
