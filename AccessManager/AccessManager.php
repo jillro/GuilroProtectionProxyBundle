@@ -27,6 +27,8 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Util\ClassUtils;
 use Symfony\Component\ExpressionLanguage\Expression;
 
+use ProxyManager\Factory\AccessInterceptorValueHolderFactory as Factory;
+
 class AccessManager {
     /**
      * @var array
@@ -42,95 +44,7 @@ class AccessManager {
     {
         $this->services = $services;
         $this->protected_classes = $parameters['protected_classes'];
-    }
-
-
-    /**
-     * Return wether current token is granted to execute the method $method_name of the proxy object $proxy.
-     * This method is called by the proxied themselves.
-     * Parent class of the proxy MUST be the protected class.
-     *
-     * @param mixed $proxy
-     * @param string $method_name
-     *
-     * @return boolean
-     */
-    public function isGranted($proxy, $method_name)
-    {
-        $attribute = isset($this->protected_classes[ClassUtils::getRealClass($proxy)]
-            ['methods'][$method_name]['attribute']) ?
-                $this->protected_classes[ClassUtils::getRealClass($proxy)]
-                    ['methods'][$method_name]['attribute']
-                : false;
-        $expression = isset($this->protected_classes[ClassUtils::getRealClass($proxy)]
-            ['methods'][$method_name]['expression']) ?
-                $this->protected_classes[ClassUtils::getRealClass($proxy)]
-                    ['methods'][$method_name]['expression']
-                : false;
-
-        if(!$attribute && !$expression) {
-            return true;
-        } else if($attribute != false) {
-            if (!$this->services['security.context']->isGranted($attribute, $proxy->__getReal())) {
-                return false;
-            }
-        } else if($expression != false) {
-            if (!$this->services['security.context']->isGranted(new Expression($expression), $proxy->__getReal())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public function isObjectGranted($object)
-    {
-        if(!isset($this->protected_classes[ClassUtils::getRealClass($object)]['view'])) {
-            return true;
-        } else {
-            $view_attribute = $this->protected_classes[ClassUtils::getRealClass($object)]['view'];
-
-            if (!$this->services['security.context']->isGranted($view_attribute, $object)) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    /**
-     * Return wether object $object should be protected, that is to say if a proxy can be generated for it.
-     * Does not work if $object is sub-class of a protected class.
-     *
-     * @param mixed $object
-     *
-     * @return boolean
-     */
-    public function isProtected($object)
-    {
-        if(is_object($object) && isset($this->protected_classes[ClassUtils::getRealClass($object)]) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function isReturningProxy($proxy, $method_name)
-    {
-        if(!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['return_proxy'])) {
-            return false;
-        } elseif ($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['return_proxy'] == true) {
-            return true;
-        }
-        return false;
-    }
-
-    public function getDenyValue($proxy, $method_name)
-    {
-        if (!isset($this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['deny_value'])) {
-            return null;
-        } else {
-            return $this->protected_classes[ClassUtils::getRealClass($proxy)]['methods'][$method_name]['deny_value'];
-        }
+        $this->factory = new Factory();
     }
 
     /**
@@ -142,30 +56,124 @@ class AccessManager {
      */
     public function getProxy($object)
     {
-        if ($this->isObjectGranted($object)) {
-            return $this->getFactory()->getProxy($object, $this);
+        if ($this->isProtected($object)) {
+            return $this->doCreateProxy($object);
         } else {
-            return null;
+            return $object;
         }
     }
 
+    /**
+     * Return an array of proxies given an array of Objects.
+     *
+     * @param array
+     *
+     * @return array
+     */
     public function getProxies(array $objects)
     {
         $return = array();
 
         foreach($objects as $object) {
             $proxy = $this->getProxy($object);
-            is_null($proxy) ? null : $return[] = $proxy;
         }
 
         return $return;
     }
 
+
     /**
-     * @return ProxyFactory
+     * Generate the proxy thanks to OcramiusProxyManager library.
+     *
+     * @param mixed
+     *
+     * @return mixed
      */
-    public function getFactory()
+    private function doCreateProxy($object) {
+        $proxy = $this->factory->createProxy($object);
+        foreach($this->protected_classes[get_class($object)]['methods'] as $method => $options) {
+            $attribute = isset($options['attribute']) ? $options['attribute'] : false;
+            $expression = isset($options['expression']) ? $options['expression'] : false;
+            $returnProxy = isset($options['return_proxy']) ? $options['return_proxy'] : false;
+            $denyValue = isset($options['deny_value']) ? $options['deny_value'] : null;
+
+            if($attribute != false) {
+                $proxy->setMethodPrefixInterceptor($method,
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue)
+                    {
+                        if (!$this->services['security.context']->isGranted($attribute, $instance)) {
+                            $returnEarly = true;
+                            return $denyValue;
+                        } else {
+                            $returnEarly = false;
+                            return;
+                        }
+                    }
+                );
+            }
+
+            if($expression != false) {
+                $proxy->setMethodPrefixInterceptor($method,
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $denyValue)
+                    {
+                        if (!$this->services['security.context']->isGranted(new Expression($expression), $instance)) {
+                            $returnEarly = true;
+                            return $denyValue;
+                        } else {
+                            $returnEarly = false;
+                            return;
+                        }
+                    }
+                );
+            }
+
+            if($returnProxy) {
+                $proxy->setMethodSuffixInterceptor($method,
+                    function ($proxy, $instance, $methodName, $params, $returnValue, & $returnEarly)
+                    {
+                        if(is_object($returnValue) && $returnValue === $proxy) {
+                            $returnEarly = false;
+                            return;
+                        } else if ($this->isProtected($returnValue)) {
+                            $returnEarly = true;
+                            return $this->getProxy($returnValue);
+                        } else if (is_array($returnValue)
+                            || $returnValue instanceof \Traversable
+                            || $returnValue instanceof \ArrayAccess
+                        ) {
+                            $return = array();
+                            foreach($returnValue as $element) {
+                                if($this->isProtected($element)) {
+                                    $return[] = $this->access_manager->getProxy($element);
+                                } else {
+                                    $return[] = $element;
+                                }
+                            }
+                            $returnEarly = true;
+                            return $return;
+                        }
+                    }
+                );
+            }
+        } // end foreach
+
+        return $proxy;
+    } // end doCreateProxy
+
+    /**
+     * Return wether object $object should be protected, that is to say if a proxy can be generated for it.
+     * Does not work if $object is sub-class of a protected class.
+     *
+     * @param mixed $object
+     *
+     * @return boolean
+     */
+    private function isProtected($object)
     {
-        return $this->services['guilro_protection_proxy.access_manager.factory'];
+        if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -22,7 +22,6 @@
 namespace Guilro\ProtectionProxyBundle\Tests\AccessManager;
 
 use Guilro\ProtectionProxyBundle\AccessManager\AccessManager;
-use Guilro\ProtectionProxyBundle\AccessManager\ProxyFactory;
 use Guilro\ProtectionProxyBundle\Tests\DummyClass;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
@@ -54,7 +53,6 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 'security.context' => $this->securityContext,
-                'guilro_protection_proxy.access_manager.factory' => new ProxyFactory(null, null)
             )
         );
     }
