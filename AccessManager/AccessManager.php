@@ -70,13 +70,16 @@ class AccessManager {
 
         if(!$attribute && !$expression) {
             return true;
-        } else if($attribute != false) {
-            if (!$this->services['security.context']->isGranted($attribute, $proxy->__getReal())) {
-                return false;
+        } else {
+            if($attribute != false) {
+                if (!$this->services['security.context']->isGranted($attribute, $proxy->__getReal())) {
+                    return false;
+                }
             }
-        } else if($expression != false) {
-            if (!$this->services['security.context']->isGranted(new Expression($expression), $proxy->__getReal())) {
-                return false;
+            if($expression != false) {
+                if (!$this->services['security.context']->isGranted(new Expression($expression), $proxy->__getReal())) {
+                    return false;
+                }
             }
         }
         return true;
