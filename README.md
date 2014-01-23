@@ -10,7 +10,7 @@ Add this bundle to your `composer.json` file:
 ```json
 {
     "require": {
-        "guilro/protection-proxy-bundle": "dev-master"
+        "guilro/protection-proxy-bundle": "0.1.*"
     }
 }
 ```
