@@ -91,6 +91,7 @@ class AccessManager {
      */
     private function doCreateProxy($object) {
         $proxy = $this->factory->createProxy($object);
+        $_this = $this; //$this is closures does not work with PHP 5.3
         foreach($this->protected_classes[get_class($object)]['methods'] as $method => $options) {
             $attribute = isset($options['attribute']) ? $options['attribute'] : false;
             $expression = isset($options['expression']) ? $options['expression'] : false;
@@ -99,9 +100,9 @@ class AccessManager {
 
             if($attribute != false && $expression != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $attribute, $denyValue)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $attribute, $denyValue, $_this)
                     {
-                        if (!($this->services['security.context']->isGranted(new Expression($expression), $instance) && $this->services['security.context']->isGranted($attribute, $instance)))  {
+                        if (!($_this->services['security.context']->isGranted(new Expression($expression), $instance) && $_this->services['security.context']->isGranted($attribute, $instance)))  {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -115,9 +116,9 @@ class AccessManager {
 
             if($attribute != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue, $_this)
                     {
-                        if (!$this->services['security.context']->isGranted($attribute, $instance)) {
+                        if (!$_this->services['security.context']->isGranted($attribute, $instance)) {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -131,9 +132,9 @@ class AccessManager {
 
             if($expression != false) {
                 $proxy->setMethodPrefixInterceptor($method,
-                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $denyValue)
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $denyValue, $_this)
                     {
-                        if (!$this->services['security.context']->isGranted(new Expression($expression), $instance)) {
+                        if (!$_this->services['security.context']->isGranted(new Expression($expression), $instance)) {
                             $returnEarly = true;
                             return $denyValue;
                         } else {
@@ -146,14 +147,14 @@ class AccessManager {
 
             if($returnProxy) {
                 $proxy->setMethodSuffixInterceptor($method,
-                    function ($proxy, $instance, $methodName, $params, $returnValue, & $returnEarly)
+                    function ($proxy, $instance, $methodName, $params, $returnValue, & $returnEarly) use ($_this)
                     {
                         if(is_object($returnValue) && $returnValue === $proxy) {
                             $returnEarly = false;
                             return;
-                        } else if ($this->isProtected($returnValue)) {
+                        } else if ($_this->isProtected($returnValue)) {
                             $returnEarly = true;
-                            return $this->getProxy($returnValue);
+                            return $_this->getProxy($returnValue);
                         } else if (is_array($returnValue)
                             || $returnValue instanceof \Traversable
                             || $returnValue instanceof \ArrayAccess
@@ -161,7 +162,7 @@ class AccessManager {
                             $return = array();
                             foreach($returnValue as $element) {
                                 if($this->isProtected($element)) {
-                                    $return[] = $this->getProxy($element);
+                                    $return[] = $_this->getProxy($element);
                                 } else {
                                     $return[] = $element;
                                 }
