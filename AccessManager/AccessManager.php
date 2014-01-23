@@ -97,6 +97,22 @@ class AccessManager {
             $returnProxy = isset($options['return_proxy']) ? $options['return_proxy'] : false;
             $denyValue = isset($options['deny_value']) ? $options['deny_value'] : null;
 
+            if($attribute != false && $expression != false) {
+                $proxy->setMethodPrefixInterceptor($method,
+                    function($proxy, $instance, $methodName, $params, & $returnEarly) use ($expression, $attribute, $denyValue)
+                    {
+                        if (!($this->services['security.context']->isGranted(new Expression($expression), $instance) && $this->services['security.context']->isGranted($attribute, $instance)))  {
+                            $returnEarly = true;
+                            return $denyValue;
+                        } else {
+                            $returnEarly = false;
+                            return;
+                        }
+                    }
+                );
+                continue;
+            }
+
             if($attribute != false) {
                 $proxy->setMethodPrefixInterceptor($method,
                     function($proxy, $instance, $methodName, $params, & $returnEarly) use ($attribute, $denyValue)
@@ -110,6 +126,7 @@ class AccessManager {
                         }
                     }
                 );
+                continue;
             }
 
             if($expression != false) {
@@ -144,7 +161,7 @@ class AccessManager {
                             $return = array();
                             foreach($returnValue as $element) {
                                 if($this->isProtected($element)) {
-                                    $return[] = $this->access_manager->getProxy($element);
+                                    $return[] = $this->getProxy($element);
                                 } else {
                                     $return[] = $element;
                                 }
