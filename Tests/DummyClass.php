@@ -22,15 +22,54 @@ namespace Guilro\ProtectionProxyBundle\Tests;
 
 class DummyClass
 {
-    public function dummyMethod() {
+    private $name;
+
+    /**
+     * Name param to ensure each dummy object is unique.
+     *
+     * @param string name
+     */
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+    /**
+     * Dummy method for test.
+     */
+    public function dummyMethod()
+    {
         return 'raw object';
     }
 
-    public function getBrother() {
-        return new DummyClass();
+    /**
+     * Dummy method for testing return_proxy parameter.
+     */
+    public function getBrother()
+    {
+        return new DummyClass('brother');
     }
 
-    public function getSister() {
-        return new DummyClass();
+    /**
+     * Dummy method for testing return_proxy parameter.
+     */
+    public function getSister()
+    {
+        return new DummyClass('sister');
+    }
+
+    /**
+     * Dummy method for testing with both attributes and expression condition set.
+     */
+    public function getSecret()
+    {
+        return 'secret';
+    }
+
+    /**
+    * Dummy method for testing return_proxy parameters with arrays.
+     */
+    public function getParents()
+    {
+        return array(new DummyClass('Mum'), new DummyClass('Dad'));
     }
 }

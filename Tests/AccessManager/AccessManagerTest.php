@@ -27,8 +27,9 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class AccessManagerTest extends \PHPUnit_Framework_TestCase
 {
-    public function __construct() {
-        $this->mockObject = new DummyClass();
+    public function __construct()
+    {
+        $this->mockObject = new DummyClass('master');
         $this->securityContext = $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface');
         $this->accessManager = new AccessManager(
             array(
@@ -46,6 +47,15 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
                             'getSister' => array(
                                 'expression' => 'hasRole(ROLE_USER)',
                                 'return_proxy' => false
+                            ),
+                            'getParents' => array(
+                                'expression' => 'hasRole(ROLE_USER)',
+                                'return_proxy' => true
+                            ),
+                            'getSecret' => array(
+                                'attribute' => 'ROLE_USER',
+                                'expression' => 'hasRole(ROLE_USER)',
+                                'deny_value' => 'proxy'
                             )
                         )
                     )
@@ -57,7 +67,8 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testAccessManagerDeny() {
+    public function testAccessManagerDeny()
+    {
         $this->securityContext
             ->expects($this->any())
             ->method('isGranted')
@@ -69,7 +80,8 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($proxy->getSister() == null);
     }
 
-    public function testAccessManagerAllow() {
+    public function testAccessManagerAllow()
+    {
         $this->securityContext
             ->expects($this->any())
             ->method('isGranted')
@@ -79,7 +91,8 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($proxy->dummyMethod() == 'raw object');
     }
 
-    public function testAccessManagerReturnProxy() {
+    public function testAccessManagerAllowReturnProxy()
+    {
         $this->securityContext
             ->expects($this->any())
             ->method('isGranted')
@@ -94,5 +107,72 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($proxy->dummyMethod() == 'proxy');
         $this->assertTrue($proxy->getBrother()->dummyMethod() == 'proxy');
         $this->assertTrue($proxy->getSister()->dummyMethod() == 'raw object');
+    }
+
+    public function testAccessManagerReturnArrayProxies()
+    {
+        $this->securityContext
+            ->expects($this->any())
+            ->method('isGranted')
+            ->will($this->returnCallback(function ($attribute, $object) {
+                if (is_a($attribute, 'Symfony\Component\ExpressionLanguage\Expression')) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }));
+        $proxy = $this->accessManager->getProxy($this->mockObject);
+        foreach($proxy->getParents() as $parents) {
+            $this->assertTrue($parents->dummyMethod() == 'proxy');
+        }
+    }
+
+    public function testAccessManagerAttributeDenyAndExpressionAllow()
+    {
+        $this->securityContext
+            ->expects($this->any())
+            ->method('isGranted')
+            ->will($this->returnCallback(function ($attribute, $object)
+            {
+                if (is_a($attribute, 'Symfony\Component\ExpressionLanguage\Expression')) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }));
+        $proxy = $this->accessManager->getProxy($this->mockObject);
+        $this->assertTrue($proxy->getSecret() == 'proxy');
+    }
+
+    public function testAccessManagerAttributeAllowAndExpressionDeny()
+    {
+        $this->securityContext
+            ->expects($this->any())
+            ->method('isGranted')
+            ->will($this->returnCallback(function ($attribute, $object) {
+                if (is_a($attribute, 'Symfony\Component\ExpressionLanguage\Expression')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }));
+        $proxy = $this->accessManager->getProxy($this->mockObject);
+        $this->assertTrue($proxy->getSecret() == 'proxy');
+    }
+
+    public function testAccessManagerAttibuteAllowAndExpressionAllow()
+    {
+        $this->securityContext
+            ->expects($this->any())
+            ->method('isGranted')
+            ->will($this->returnCallback(function ($attribute, $object) {
+                if (is_a($attribute, 'Symfony\Component\ExpressionLanguage\Expression')) {
+                    return true;
+                } else {
+                    return true;
+                }
+            }));
+        $proxy = $this->accessManager->getProxy($this->mockObject);
+        $this->assertTrue($proxy->getSecret() == 'secret');
     }
 }
