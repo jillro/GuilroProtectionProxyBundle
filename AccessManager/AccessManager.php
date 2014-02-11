@@ -59,7 +59,7 @@ class AccessManager
      */
     public function isProtected($object)
     {
-        if(is_object($object) && isset($this->protected_classes[get_class($object)]) ) {
+        if(is_object($object) && isset($this->protected_classes[ClassUtils::getRealClass($object)]) ) {
             return true;
         } else {
             return false;
@@ -117,7 +117,7 @@ class AccessManager
         $_this = $this;
         $securityContext = $this->services['security.context'];
 
-        foreach($this->protected_classes[get_class($object)]['methods'] as $method => $options) {
+        foreach($this->protected_classes[ClassUtils::getRealClass($object)]['methods'] as $method => $options) {
             $attribute = isset($options['attribute']) ? $options['attribute'] : false;
             $expression = isset($options['expression']) ? $options['expression'] : false;
             $returnProxy = isset($options['return_proxy']) ? $options['return_proxy'] : false;
