@@ -62,6 +62,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->booleanNode('caching')->end()
             ->end()
         ;
 

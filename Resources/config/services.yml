@@ -9,5 +9,7 @@ services:
         arguments:
             parameters:
                 protected_classes: %guilro_protection_proxy.access_manager.protected_classes%
+                caching: %guilro_protection_proxy.caching%
+                cache_dir: %kernel.cache_dir%/guilroProtectionProxyBundle
             services:
                 security.context:   @security.context

@@ -46,6 +46,14 @@ class AccessManager
     {
         $this->services = $services;
         $this->protected_classes = $parameters['protected_classes'];
+        $cache_dir = $parameters['cache_dir'];
+        $config = new \ProxyManager\Configuration();
+        if($parameters['caching'] === true) {
+            $config->setProxiesTargetDir($cache_dir);
+            $this->factory = new Factory($config);
+            spl_autoload_register($config->getProxyAutoloader());
+            return;
+        }
         $this->factory = new Factory();
     }
 

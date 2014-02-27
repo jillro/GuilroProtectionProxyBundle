@@ -62,7 +62,9 @@ class AccessManagerTest extends \PHPUnit_Framework_TestCase
                             )
                         )
                     )
-                )
+                ),
+                'cache_dir' => __DIR__ . '/cache',
+                'caching' => true
             ),
             array(
                 'security.context' => $this->securityContext,

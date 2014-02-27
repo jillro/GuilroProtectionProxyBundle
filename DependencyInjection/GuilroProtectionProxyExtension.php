@@ -44,6 +44,7 @@ class GuilroProtectionProxyExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $container->setParameter('guilro_protection_proxy.access_manager.protected_classes', $config['protected_classes']);
+        $container->setParameter('guilro_protection_proxy.caching', $config['caching']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
