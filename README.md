@@ -2,6 +2,8 @@ GuilroProtectionProxyBundle
 ===========================
 [![Build Status](https://travis-ci.org/guilro/GuilroProtectionProxyBundle.png?branch=master)](https://travis-ci.org/guilro/GuilroProtectionProxyBundle)
 
+Current version : 0.1.2
+
 Installation
 ------------
 
@@ -39,6 +41,7 @@ You have to configure the protected classes and methods (for the moment in confi
 # app/config/config.yml
 
 guilro_protection_proxy:
+    caching: true #optional, default to false
     protected_classes:
         Acme\BlogBundle\Entity\Comment:
             methods:

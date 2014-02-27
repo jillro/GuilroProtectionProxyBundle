@@ -2,4 +2,4 @@
 *.swp
 composer.phar
 vendor
-cache/*
+*cache/*.php
