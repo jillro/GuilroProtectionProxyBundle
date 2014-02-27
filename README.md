@@ -2,7 +2,7 @@ GuilroProtectionProxyBundle
 ===========================
 [![Build Status](https://travis-ci.org/guilro/GuilroProtectionProxyBundle.png?branch=master)](https://travis-ci.org/guilro/GuilroProtectionProxyBundle)
 
-Current version : 0.1.2
+Current version : 0.1.3
 
 Installation
 ------------
