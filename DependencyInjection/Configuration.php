@@ -44,6 +44,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->booleanNode('caching')->defaultFalse()->end()
                 ->arrayNode('protected_classes')
                     ->useAttributeAsKey('name')
                     ->prototype('array')
@@ -62,7 +63,6 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->booleanNode('caching')->defaultFalse()->end()
             ->end()
         ;
 
